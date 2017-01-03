@@ -61,7 +61,7 @@ def proxy_http_host (msg_in):
 	return msg_ret
 
 ####################################		
-####	HTTP Handler Thread		####
+####	HTTP Handler Thread	####
 ####################################
 def handle_http_connection (conn_in, addr, connection_id):
 	## log connection
@@ -145,7 +145,7 @@ def handle_http_connection (conn_in, addr, connection_id):
 
 
 #######################################
-####	Main			###############
+####	Main		###############
 #######################################
 
 #### Setup TLS
