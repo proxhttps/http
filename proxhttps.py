@@ -2,8 +2,11 @@
 ####     Configuration   ##############
 #######################################
 hostname = "dbhost.firebaseio.com"
-certs_path = '/etc/ssl/certs/ca-certificates.crt'
+certs_path = '/etc/ssl/certs/ca-bundle.crt'
 port_in = 8888
+
+strict_hostname_match = True
+hostname_in = "incoming_hostname.com"
 
 debug_verbosity = 1
 #######################################
@@ -51,6 +54,11 @@ def proxy_http_host (msg_in):
 		host_start = msg_in.find(hostneedle) + len(hostneedle)
 		host_end = msg_in[host_start:].find("\r\n")
 		hostname_old = msg_in[host_start:host_start+host_end]
+		## Check incoming hostname match
+		if (strict_hostname_match):
+			if (hostname_old != hostname_in):
+				prox_log_("Hostname: " +hostname_old+ " does not match: " +hostname_in, 1)
+				return False
 		prox_log_("Changing Hostname: " + hostname_old, 1)
 		prox_log_("To: " + hostname, 1)
 		
@@ -108,6 +116,10 @@ def handle_http_connection (conn_in, addr, connection_id):
 				
 				msg_in_changed = proxy_http_host(msg_in)
 				
+				if (msg_in == False):
+					prox_log_("Host problem rejecting connection")
+					break;
+				
 				## pass incoming data forward
 				try:
 					conn_out.sendall(msg_in_changed)
@@ -145,7 +157,7 @@ def handle_http_connection (conn_in, addr, connection_id):
 
 
 #######################################
-####	Main		###############
+####     Main		 ##############
 #######################################
 
 #### Setup TLS
@@ -187,4 +199,3 @@ while True:
 	# launch handler thread
 	thread.start_new_thread(handle_http_connection, (conn_in, addr, connection_id))
 	connection_id += 1
-
